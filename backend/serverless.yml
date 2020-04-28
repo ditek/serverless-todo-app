@@ -14,8 +14,9 @@ provider:
 
   environment:
     REGION: ${opt:region, 'us-east-1'}
-    TODOS_TABLE: Todos-v1-${self:provider.stage}
+    TODOS_TABLE: Todos-v2-${self:provider.stage}
     IMAGES_S3_BUCKET: serverless-todo-diaa-images-${self:provider.stage}
+    AUTH_0_SECRET: JmV6wz1Y9qUEYCt-4Uhsj39-MQDkz8JHtc9RD3oKS0w50YoJqCvxljO2y0yeMDsR
 
   iamRoleStatements:
     - Effect: Allow
@@ -35,8 +36,8 @@ provider:
 
 functions:
 
-  # Auth:
-  #   handler: src/lambda/auth/auth0Authorizer.handler
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
 
   # # TODO: Configure this function
   GetTodos:
@@ -46,6 +47,7 @@ functions:
           method: get
           path: todos
           cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   CreateTodo:
@@ -55,6 +57,7 @@ functions:
           method: post
           path: todos
           cors: true
+          authorizer: Auth
           request:
             schema:
               application/json: ${file(models/create-todo-model.json)}
@@ -67,6 +70,7 @@ functions:
           method: patch
           path: todos/{todoId}
           cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   DeleteTodo:
@@ -76,6 +80,7 @@ functions:
           method: delete
           path: todos/{todoId}
           cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   GenerateUploadUrl:
@@ -85,6 +90,7 @@ functions:
           method: post
           path: todos/{todoId}/attachment
           cors: true
+          authorizer: Auth
 
 resources:
   Resources:
