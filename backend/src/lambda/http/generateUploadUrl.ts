@@ -3,6 +3,7 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
+import * as utils from '../../auth/utils'
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 const tableName = process.env.TODOS_TABLE;
@@ -32,10 +33,11 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     };
 
     const uploadUrl = s3.getSignedUrl('putObject', urlParams);
+    const userId = utils.userIdFromEvent(event)
 
     await docClient.update({
       TableName: tableName,
-      Key: { todoId },
+      Key: { todoId, userId },
       UpdateExpression: "set attachmentUrl = :url",
       ExpressionAttributeValues: {
         ":url": imageUrl

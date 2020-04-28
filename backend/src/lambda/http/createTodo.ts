@@ -1,5 +1,6 @@
 import 'source-map-support/register'
 import * as uuid from 'uuid'
+import * as utils from '../../auth/utils'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
@@ -10,9 +11,11 @@ const tableName = process.env.TODOS_TABLE;
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const newTodo: CreateTodoRequest = JSON.parse(event.body)
+  const userId = utils.userIdFromEvent(event)
 
   const item = {
     todoId: uuid.v4(),
+    userId,
     ...newTodo
   }
   await docClient.put({
@@ -25,6 +28,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
-    body: JSON.stringify({item})
+    body: JSON.stringify({ item })
   }
 }
