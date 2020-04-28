@@ -18,6 +18,10 @@ provider:
     IMAGES_S3_BUCKET: serverless-todo-diaa-images-${self:provider.stage}
     AUTH_0_SECRET: JmV6wz1Y9qUEYCt-4Uhsj39-MQDkz8JHtc9RD3oKS0w50YoJqCvxljO2y0yeMDsR
 
+  tracing:
+    lambda: true
+    apiGateway: true
+
   iamRoleStatements:
     - Effect: Allow
       Action:
