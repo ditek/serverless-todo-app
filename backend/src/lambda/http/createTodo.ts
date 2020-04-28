@@ -12,7 +12,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const newTodo: CreateTodoRequest = JSON.parse(event.body)
 
   const item = {
-    id: uuid.v4(),
+    todoId: uuid.v4(),
     ...newTodo
   }
   await docClient.put({
@@ -25,6 +25,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
-    body: JSON.stringify(item)
+    body: JSON.stringify({item})
   }
 }

@@ -14,7 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   await docClient.update({
     TableName: tableName,
-    Key: { id: todoId },
+    Key: { todoId },
     UpdateExpression: "set #n = :n, dueDate = :dD, done = :d",
     ExpressionAttributeValues: {
       ":n": updatedTodo.name,

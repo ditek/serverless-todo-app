@@ -35,7 +35,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     await docClient.update({
       TableName: tableName,
-      Key: { id: todoId },
+      Key: { todoId },
       UpdateExpression: "set attachmentUrl = :url",
       ExpressionAttributeValues: {
         ":url": imageUrl
