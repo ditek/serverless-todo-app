@@ -15,7 +15,7 @@ provider:
 
   environment:
     REGION: ${opt:region, 'us-east-1'}
-    TODOS_TABLE: Todos-v4-${self:provider.stage}
+    TODOS_TABLE: Todos-v5-${self:provider.stage}
     IMAGES_S3_BUCKET: serverless-todo-diaa-images-${self:provider.stage}
     AUTH_0_SECRET: JmV6wz1Y9qUEYCt-4Uhsj39-MQDkz8JHtc9RD3oKS0w50YoJqCvxljO2y0yeMDsR
 
@@ -114,6 +114,15 @@ functions:
           - s3:PutObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
 
+  SyncWithElasticsearch:
+    environment:
+      ES_ENDPOINT: !GetAtt TodoSearch.DomainEndpoint
+    handler: src/lambda/dynamoDb/elasticSearchSync.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt TodosDynamoDBTable.StreamArn
+
 resources:
   Resources:
     # DynamoDB
@@ -132,7 +141,9 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
-        
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -166,3 +177,28 @@ resources:
               Action: 's3:GetObject'
               Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
+
+    TodoSearch:
+      Type: AWS::Elasticsearch::Domain
+      Properties:
+        ElasticsearchVersion: '6.3'
+        DomainName: todo-search-${self:provider.stage}
+        ElasticsearchClusterConfig:
+          DedicatedMasterEnabled: false
+          InstanceCount: '1'
+          ZoneAwarenessEnabled: false
+          InstanceType: t2.small.elasticsearch
+        EBSOptions:
+          EBSEnabled: true
+          Iops: 0
+          VolumeSize: 10
+          VolumeType: 'gp2'
+
+        AccessPolicies:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                AWS: '*'
+              Action: 'es:*'
+              Resource: '*'
