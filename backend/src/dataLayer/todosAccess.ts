@@ -43,6 +43,7 @@ export class TodoAccess {
     await this.docClient.update({
       TableName: this.tableName,
       Key: { todoId, userId },
+      ConditionExpression: "attribute_exists(todoId)",
       UpdateExpression: "set attachmentUrl = :url",
       ExpressionAttributeValues: {
         ":url": imageUrl
@@ -65,6 +66,7 @@ export class TodoAccess {
     await this.docClient.update({
       TableName: this.tableName,
       Key: { todoId, userId },
+      ConditionExpression: "attribute_exists(todoId)",
       UpdateExpression: "set #n = :n, dueDate = :dD, done = :d",
       ExpressionAttributeValues: {
         ":n": item.name,
